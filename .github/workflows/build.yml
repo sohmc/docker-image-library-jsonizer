@@ -44,8 +44,8 @@ jobs:
           result-encoding: string
           script: |
             const commits = await github.rest.git.listCommits({
-              owner: docker-library,
-              repo: official-images
+              owner: 'docker-library',
+              repo: 'official-images'
             });
             return commits[0].sha;
         
@@ -107,8 +107,8 @@ jobs:
           result-encoding: string
           script: |
             const commits = await github.rest.git.listCommits({
-              owner: docker-library,
-              repo: official-images
+              owner: 'docker-library',
+              repo: 'official-images'
             });
             return commits[0].sha;
       
