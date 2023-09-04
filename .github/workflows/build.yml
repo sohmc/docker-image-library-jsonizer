@@ -38,7 +38,7 @@ jobs:
     needs: get-image-names
     strategy:
       matrix:
-        docker-image: ${{ needs.get-image-names.outputs.image-list }}
+        docker-image: ${{ fromJson(needs.get-image-names.outputs.image-list) }}
     steps:
       - uses: actions/checkout@v4
 
@@ -46,4 +46,3 @@ jobs:
         run: echo ${IMAGE_NAME}
         env:
           IMAGE_NAME: ${{ matrix.docker-image }}
-          
