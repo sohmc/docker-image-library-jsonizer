@@ -34,17 +34,17 @@ jobs:
               repo: 'official-images'
             });
             return commits.data[0].sha;
-            
+
       - name: Compare SHAs
         id: compare-sha
         run: |
           echo Archived SHA: ${ARCHIVEDSHA}
           echo Latest SHA:   ${LATESTSHA}
           if [[ $ARCHIVEDSHA == $LATESTSHA ]]; then 
-            NEWCOMMIT=true
+            NEWCOMMIT=false
             
           else
-            NEWCOMMIT=false
+            NEWCOMMIT=true
           fi
 
           echo "NEWCOMMIT=$NEWCOMMIT" >> $GITHUB_OUTPUT
