@@ -1,0 +1,30 @@
+name: Docker Official Images JSON Builder
+
+on: 
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+    paths-ignore:
+    - 'README.md'
+    - 'LICENSE'
+  release:
+    types: published
+  schedule:
+    # 4am every Saturday
+    - cron: '0 4 * * 6'
+
+jobs:
+  get-image-names:
+    runs-on: ubuntu-latest
+    outputs:
+      images: foo
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: docker-library/official-images
+          sparse-checkout: library/
+      
+      - name: Build image list
+        run: |
+          ls -l library
