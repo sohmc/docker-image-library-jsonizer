@@ -1,0 +1,11 @@
+{
+  "name": "php-versions-json",
+  "version": "1.0.0",
+  "description": "More to come.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
