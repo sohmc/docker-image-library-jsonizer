@@ -112,13 +112,13 @@ jobs:
             });
             return JSON.stringify(commits);
       
-      # - name: Touch SHA
-      #   run: |
-      #     echo docker-library/official-images SHA: ${SHA}
-      #     echo "${SHA}" > /tmp/json-library.sha
-      #     cat /tmp/json-library.sha
-      #   env:
-      #     SHA: ${{ steps.get-sha.outputs.result }}
+      - name: Touch SHA
+        run: |
+          echo docker-library/official-images SHA: ${SHA}
+          echo "${SHA}" > /tmp/json-library.sha
+          cat /tmp/json-library.sha
+        env:
+          SHA: ${{ steps.get-sha.outputs.result }}
 
       - name: Upload JSON
         uses: actions/upload-artifact@v3
