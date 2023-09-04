@@ -47,12 +47,12 @@ jobs:
 
       - name: Build JSON
         run: |
-          URL=${IMAGE_NAME} node index.js
+          URL=https://raw.githubusercontent.com/docker-library/official-images/master/library/${IMAGE_NAME} node index.js
           cat output.json
           mkdir -p /tmp/json-library
-          cp output.json /tmp/json-library
+          cp output.json /tmp/json-library/${IMAGE_NAME}
         env:
-          IMAGE_NAME: https://raw.githubusercontent.com/docker-library/official-images/master/library/${{ matrix.docker-image }}
+          IMAGE_NAME: ${{ matrix.docker-image }}
 
       - name: Upload JSON
         uses: actions/upload-artifact@v3
