@@ -45,12 +45,17 @@ async function run(urlOfFile) {
       phpVersionsJson.sourceUrl = line.match(/https.*$/)[0];
     }
 
-    if (/^Maintainers: (.*)/.test(line)) {
+    if (/^Maintainers:/.test(line)) {
       console.log('Working on Maintainers');
       const maintainer = line.replace(/^Maintainers: (.*),?/, '$1').replace(/,/, '');
 
       phpVersionsJson.maintainers = Array(maintainer);
       parserStatus.node = 'maintainers';
+    }
+
+    if (/^GitRepo: /.test(line)) {
+      console.log('Got GitRepo');
+      phpVersionsJson.gitRepo = line.replace(/^GitRepo: (.*)$/, '$1').trim();
     }
 
     // If there are spaces before the next line of test, it's a continuation of the previous line.
