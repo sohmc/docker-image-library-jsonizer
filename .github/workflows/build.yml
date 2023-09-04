@@ -49,7 +49,7 @@ jobs:
               owner: 'docker-library',
               repo: 'official-images'
             });
-            return commits[0].sha;
+            return commits.data[0].sha;
         
       - name: Compare SHAs
         run: |
