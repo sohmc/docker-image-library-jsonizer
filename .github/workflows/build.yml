@@ -169,7 +169,7 @@ jobs:
             -H "X-GitHub-Api-Version: 2022-11-28" \
             /repos/${GITHUB_REPOSITORY}/actions/variables/DOCKER_LIBRARY_SHA \
             -f name='DOCKER_LIBRARY_SHA' \
-            -f value='${SHA}'
+            -f value="${SHA}"
         env:
           GH_TOKEN: ${{ secrets.TOKEN_FOR_ACTIONS }}
           SHA: ${{ steps.get-sha.outputs.result }}
