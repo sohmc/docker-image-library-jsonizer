@@ -35,6 +35,11 @@ async function run(urlOfFile) {
   };
 
   const phpVersionsJson = {};
+  const tagObject = {
+    'tags': [],
+    'architectures': [],
+    'gitCommit': '',
+  };
 
   for await (const line of makeTextFileLineIterator(urlOfFile)) {
     // skip blank lines
@@ -47,7 +52,7 @@ async function run(urlOfFile) {
 
     if (/^Maintainers:/.test(line)) {
       console.log('Working on Maintainers');
-      const maintainer = line.replace(/^Maintainers: (.*),?/, '$1').replace(/,/, '');
+      const maintainer = line.replace(/^Maintainers: (.*),?/, '$1').replace(/,/, '').trim();
 
       phpVersionsJson.maintainers = Array(maintainer);
       parserStatus.node = 'maintainers';
@@ -56,6 +61,23 @@ async function run(urlOfFile) {
     if (/^GitRepo: /.test(line)) {
       console.log('Got GitRepo');
       phpVersionsJson.gitRepo = line.replace(/^GitRepo: (.*)$/, '$1').trim();
+    }
+
+    if (/^Tags:/.test(line)) {
+      tagObject.tags = line.replace(/^Tags: (.*)$/, '$1').trim().split(', ');
+    }
+
+    if (/^Architectures:/.test(line)) {
+      tagObject.architectures = line.replace(/^Architectures: (.*)$/, '$1').trim().split(', ');
+    }
+
+    if (/^GitCommit:/.test(line)) {
+      tagObject.gitCommit = line.replace(/^GitCommit: (.*)$/, '$1').trim();
+    }
+
+    if (/^Directory:/.test(line)) {
+      const directory = line.replace(/^Directory: (.*)$/, '$1').trim().split(', ');
+      phpVersionsJson[directory] = tagObject;
     }
 
     // If there are spaces before the next line of test, it's a continuation of the previous line.
@@ -72,7 +94,7 @@ async function run(urlOfFile) {
     }
   }
 
-  console.log(JSON.stringify(phpVersionsJson));
+  console.log(JSON.stringify(phpVersionsJson, null, 2));
 }
 
 run('https://raw.githubusercontent.com/docker-library/official-images/master/library/php');
