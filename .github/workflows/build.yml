@@ -18,7 +18,7 @@ jobs:
   get-image-names:
     runs-on: ubuntu-latest
     outputs:
-      images: foo
+      image-list: ${{ steps.build-image-list.outputs.IMAGE_LIST }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,5 +26,9 @@ jobs:
           sparse-checkout: library/
       
       - name: Build image list
+        id: build-image-list
+        working-directory: ./library
         run: |
-          ls -l library
+          LS=$(ls | jq -cRsa 'split("\n")[:-1]')
+          echo "IMAGE_LIST=$LS" >> $GITHUB_OUTPUT
+          jq . <<< "$LS"
