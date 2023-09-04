@@ -20,7 +20,7 @@ jobs:
   get-latest-commit:
     runs-on: ubuntu-latest
     outputs:
-      new-commit: ${{ steps.get-archived-sha.outputs.ARCHIVEDSHA }}
+      new-commit: ${{ steps.compare-sha.outputs.NEWCOMMIT }}
     steps:
       - name: Download sha artifact
         id: download-sha-artifact
@@ -52,9 +52,19 @@ jobs:
             return commits.data[0].sha;
         
       - name: Compare SHAs
+        id: compare-sha
         run: |
           echo Archived SHA: ${ARCHIVEDSHA}
           echo Latest SHA:   ${LATESTSHA}
+          if [ $ARCHIVEDSHA = $LATESTSHA ]; then 
+            NEWCOMMIT=true
+            
+          else
+            NEWCOMMIT=false
+          fi
+
+          echo "NEWCOMMIT=$NEWCOMMIT" >> $GITHUB_OUTPUT
+          echo "NEWCOMMIT=$NEWCOMMIT"
         env:
           ARCHIVEDSHA: ${{ steps.get-archived-sha.outputs.ARCHIVEDSHA }}
           LATESTSHA: ${{ steps.get-latest-sha.outputs.result }}
@@ -81,7 +91,7 @@ jobs:
 
 
   build-json-files:
-    if: github.ref == '00000'
+    if: needs.get-latest-commit.outputs.new-commit == 'true'
     runs-on: ubuntu-latest
     needs: get-latest-commit
     # needs: get-image-names
