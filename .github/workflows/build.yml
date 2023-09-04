@@ -22,6 +22,19 @@ jobs:
     outputs:
       new-commit: ${{ steps.compare-sha.outputs.NEWCOMMIT }}
     steps:       
+      - name: Get latest commit SHA
+        id: get-latest-sha
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.TOKEN_FOR_ACTIONS }}
+          result-encoding: string
+          script: |
+            const commits = await github.rest.repos.listCommits({
+              owner: 'docker-library',
+              repo: 'official-images'
+            });
+            return commits.data[0].sha;
+            
       - name: Compare SHAs
         id: compare-sha
         run: |
