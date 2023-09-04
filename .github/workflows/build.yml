@@ -89,7 +89,6 @@ jobs:
           echo "IMAGE_LIST=$LS" >> $GITHUB_OUTPUT
           jq . <<< "$LS"
 
-
   build-json-files:
     if: needs.get-latest-commit.outputs.new-commit == 'true' || startsWith(github.event.head_commit.message, 'FORCE_BUILD=TRUE')
         
@@ -112,27 +111,6 @@ jobs:
           cp output.json /tmp/json-library/${IMAGE_NAME}
         env:
           IMAGE_NAME: ${{ matrix.docker-image }}
-      
-      - name: Get latest commit SHA
-        id: get-sha
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.TOKEN_FOR_ACTIONS }}
-          result-encoding: string
-          script: |
-            const commits = await github.rest.repos.listCommits({
-              owner: 'docker-library',
-              repo: 'official-images'
-            });
-            return commits.data[0].sha;
-      
-      - name: Touch SHA
-        run: |
-          echo docker-library/official-images SHA: ${SHA}
-          echo "${SHA}" > /tmp/json-library.sha
-          cat /tmp/json-library.sha
-        env:
-          SHA: ${{ steps.get-sha.outputs.result }}
 
       - name: Upload Image JSON Files
         uses: actions/upload-artifact@v3
@@ -141,14 +119,6 @@ jobs:
           path: /tmp/json-library/*
           if-no-files-found: error
           retention-days: 1
-      
-      - name: Upload docker-library/official-images commit sha
-        uses: actions/upload-artifact@v3
-        with:
-          name: docker-image-commit
-          path: /tmp/json-library.sha
-          if-no-files-found: error
-          retention-days: 14
 
   merge-json-output:
     name: Merge JSON output files
@@ -185,9 +155,44 @@ jobs:
       #   with:
       #     artifacts: "/tmp/json-library/*"
 
+  store-latest-commit-sha:
+    name: Store docker-library commit SHA
+    runs-on: ubuntu-latest
+    needs: build-json-files
+
+    steps:
+      - name: Get latest commit SHA
+        id: get-sha
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.TOKEN_FOR_ACTIONS }}
+          result-encoding: string
+          script: |
+            const commits = await github.rest.repos.listCommits({
+              owner: 'docker-library',
+              repo: 'official-images'
+            });
+            return commits.data[0].sha;
+      
+      - name: Touch SHA
+        run: |
+          echo docker-library/official-images SHA: ${SHA}
+          echo "${SHA}" > /tmp/json-library.sha
+          cat /tmp/json-library.sha
+        env:
+          SHA: ${{ steps.get-sha.outputs.result }}
+
+      - name: Upload docker-library/official-images commit sha
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-image-commit
+          path: /tmp/json-library.sha
+          if-no-files-found: error
+          retention-days: 14
+      
   check-artifact:
     runs-on: ubuntu-latest
-    needs: get-latest-commit
+    needs: store-latest-commit-sha
     steps:
       - name: Download sha artifact
         id: download-sha-artifact
