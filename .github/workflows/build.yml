@@ -110,7 +110,7 @@ jobs:
               owner: 'docker-library',
               repo: 'official-images'
             });
-            return JSON.stringify(commits);
+            return commits.data[0].sha;
       
       - name: Touch SHA
         run: |
