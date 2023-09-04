@@ -77,3 +77,22 @@ jobs:
       - name: List Files
         working-directory: /tmp/json-library
         run: ls -l
+
+      - name: Add latest tag
+        uses: actions/github-script@v6
+        if: github.ref != 'refs/tags/latest'
+        with:
+          github-token: ${{ secrets.TOKEN_FOR_ACTIONS }}
+          script: |
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: "refs/tags/latest",
+              sha: context.sha
+            })
+
+      - name: Release Files
+        uses: ncipollo/release-action@v1
+        if: github.ref == 'refs/tags/latest'
+        with:
+          artifacts: "/tmp/json-library/*"
