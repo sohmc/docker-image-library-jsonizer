@@ -125,7 +125,9 @@ jobs:
         with:
           artifacts: "/tmp/json-library/*"
           allowUpdates: true
+          tag: latest
           name: latest
+          replacesArtifacts: true
           body: Release artifacts have been updated to reflect [docker-library/official-images](https://github.com/docker-library/official-images/tree/${{ vars.DOCKER_LIBRARY_SHA }}) commit `${{ vars.DOCKER_LIBRARY_SHA }}.
 
   store-latest-commit-sha:
