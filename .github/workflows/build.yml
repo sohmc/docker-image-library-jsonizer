@@ -184,3 +184,53 @@ jobs:
       #   if: github.ref == 'refs/tags/latest'
       #   with:
       #     artifacts: "/tmp/json-library/*"
+
+  check-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download sha artifact
+        id: download-sha-artifact
+        continue-on-error: true
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-image-commit
+          path: /tmp
+      
+      - name: Get Archived SHA
+        if: steps.download-sha-artifact.outcome == 'success'
+        id: get-archived-sha
+        run: |
+          SHA=$(cat /tmp/json-library.sha)
+          echo Archived SHA: ${SHA}
+          echo "ARCHIVEDSHA=$SHA" >> $GITHUB_OUTPUT
+      
+      - name: Get latest commit SHA
+        id: get-latest-sha
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.TOKEN_FOR_ACTIONS }}
+          result-encoding: string
+          script: |
+            const commits = await github.rest.repos.listCommits({
+              owner: 'docker-library',
+              repo: 'official-images'
+            });
+            return commits.data[0].sha;
+        
+      - name: Compare SHAs
+        id: compare-sha
+        run: |
+          echo Archived SHA: ${ARCHIVEDSHA}
+          echo Latest SHA:   ${LATESTSHA}
+          if [[ $ARCHIVEDSHA == $LATESTSHA ]]; then 
+            NEWCOMMIT=true
+            
+          else
+            NEWCOMMIT=false
+          fi
+
+          echo "NEWCOMMIT=$NEWCOMMIT" >> $GITHUB_OUTPUT
+          echo "NEWCOMMIT=$NEWCOMMIT"
+        env:
+          ARCHIVEDSHA: ${{ steps.get-archived-sha.outputs.ARCHIVEDSHA }}
+          LATESTSHA: ${{ steps.get-latest-sha.outputs.result }}
