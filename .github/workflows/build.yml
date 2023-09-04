@@ -40,7 +40,7 @@ jobs:
     strategy:
       matrix:
         # docker-image: ${{ fromJson(needs.get-image-names.outputs.image-list) }}
-        docker-image: [alpine, php]
+        docker-image: [php]
       max-parallel: 5
     steps:
       - uses: actions/checkout@v4
