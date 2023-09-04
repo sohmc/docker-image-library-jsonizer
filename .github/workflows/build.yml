@@ -23,12 +23,15 @@ jobs:
       new-commit: ${{ steps.get-archived-sha.outputs.ARCHIVEDSHA }}
     steps:
       - name: Download sha artifact
+        id: download-sha-artifact
+        continue-on-error: true
         uses: actions/download-artifact@v3
         with:
           name: docker-image-commit
           path: /tmp
       
       - name: Get Archived SHA
+        if: steps.download-sha-artifact.outcome == 'success'
         id: get-archived-sha
         run: |
           SHA=$(cat /tmp/json-library.sha)
@@ -120,7 +123,7 @@ jobs:
         env:
           SHA: ${{ steps.get-sha.outputs.result }}
 
-      - name: Upload JSON
+      - name: Upload Image JSON Files
         uses: actions/upload-artifact@v3
         with:
           name: docker-image-json
@@ -128,7 +131,7 @@ jobs:
           if-no-files-found: error
           retention-days: 1
       
-      - name: Upload JSON
+      - name: Upload docker-library/official-images commit sha
         uses: actions/upload-artifact@v3
         with:
           name: docker-image-commit
