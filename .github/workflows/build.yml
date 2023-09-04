@@ -21,36 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       new-commit: ${{ steps.compare-sha.outputs.NEWCOMMIT }}
-    steps:
-      - name: Download sha artifact
-        id: download-sha-artifact
-        continue-on-error: true
-        uses: actions/download-artifact@v3
-        with:
-          name: docker-image-commit
-          path: /tmp
-      
-      - name: Get Archived SHA
-        if: steps.download-sha-artifact.outcome == 'success'
-        id: get-archived-sha
-        run: |
-          SHA=$(cat /tmp/json-library.sha)
-          echo Archived SHA: ${SHA}
-          echo "ARCHIVEDSHA=$SHA" >> $GITHUB_OUTPUT
-      
-      - name: Get latest commit SHA
-        id: get-latest-sha
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.TOKEN_FOR_ACTIONS }}
-          result-encoding: string
-          script: |
-            const commits = await github.rest.repos.listCommits({
-              owner: 'docker-library',
-              repo: 'official-images'
-            });
-            return commits.data[0].sha;
-        
+    steps:       
       - name: Compare SHAs
         id: compare-sha
         run: |
@@ -66,7 +37,7 @@ jobs:
           echo "NEWCOMMIT=$NEWCOMMIT" >> $GITHUB_OUTPUT
           echo "NEWCOMMIT=$NEWCOMMIT"
         env:
-          ARCHIVEDSHA: ${{ steps.get-archived-sha.outputs.ARCHIVEDSHA }}
+          ARCHIVEDSHA: ${{ vars.DOCKER_LIBRARY_SHA }}
           LATESTSHA: ${{ steps.get-latest-sha.outputs.result }}
       
     
@@ -172,23 +143,22 @@ jobs:
               owner: 'docker-library',
               repo: 'official-images'
             });
-            return commits.data[0].sha;
-      
-      - name: Touch SHA
+            const sha=commits.data[0].sha;
+
+            await github.rest.actions.updateRepoVariable({
+              owner: 'context.repo.owner',
+              repo: 'context.repo.repo',
+              name: 'DOCKER_LIBRARY_SHA',
+              value: sha
+            });
+
+            return sha
+
+      - name: echo SHA
         run: |
           echo docker-library/official-images SHA: ${SHA}
-          echo "${SHA}" > /tmp/json-library.sha
-          cat /tmp/json-library.sha
         env:
           SHA: ${{ steps.get-sha.outputs.result }}
-
-      - name: Upload docker-library/official-images commit sha
-        uses: actions/upload-artifact@v3
-        with:
-          name: docker-image-commit
-          path: /tmp/json-library.sha
-          if-no-files-found: error
-          retention-days: 14
       
   check-artifact:
     runs-on: ubuntu-latest
@@ -240,4 +210,3 @@ jobs:
         env:
           ARCHIVEDSHA: ${{ steps.get-archived-sha.outputs.ARCHIVEDSHA }}
           LATESTSHA: ${{ steps.get-latest-sha.outputs.result }}
-          
