@@ -6,8 +6,10 @@ on:
   push:
     branches: [main]
     paths-ignore:
-    - 'README.md'
-    - 'LICENSE'
+      - 'README.md'
+      - 'LICENSE'
+    tags:
+      - 'latest'
   release:
     types: published
   schedule:
@@ -15,6 +17,46 @@ on:
     - cron: '0 4 * * 6'
 
 jobs:
+  get-latest-commit:
+    runs-on: ubuntu-latest
+    outputs:
+      new-commit: ${{ steps.get-archived-sha.outputs.ARCHIVEDSHA }}
+    steps:
+      - name: Download sha artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-image-commit
+          path: /tmp
+      
+      - name: Get Archived SHA
+        id: get-archived-sha
+        run: |
+          SHA=$(cat /tmp/json-library.sha)
+          echo Archived SHA: ${SHA}
+          echo "ARCHIVEDSHA=$SHA" >> $GITHUB_OUTPUT
+      
+      - name: Get latest commit SHA
+        id: get-latest-sha
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.TOKEN_FOR_ACTIONS }}
+          result-encoding: string
+          script: |
+            const commits = await github.rest.git.listCommits({
+              owner: docker-library,
+              repo: official-images
+            });
+            return commits[0].sha;
+        
+      - name: Compare SHAs
+        run: |
+          echo Archived SHA: ${ARCHIVEDSHA}
+          echo Latest SHA:   ${LATESTSHA}
+        env:
+          ARCHIVEDSHA: ${{ steps.get-archived-sha.outputs.ARCHIVEDSHA }}
+          LATESTSHA: ${{ steps.get-latest-sha.outputs.result }}
+      
+    
   get-image-names:
     if: github.ref == '00000'
     runs-on: ubuntu-latest
@@ -33,6 +75,7 @@ jobs:
           LS=$(ls | jq -cRsa 'split("\n")[:-1]')
           echo "IMAGE_LIST=$LS" >> $GITHUB_OUTPUT
           jq . <<< "$LS"
+
 
   build-json-files:
     runs-on: ubuntu-latest
@@ -53,6 +96,27 @@ jobs:
           cp output.json /tmp/json-library/${IMAGE_NAME}
         env:
           IMAGE_NAME: ${{ matrix.docker-image }}
+      
+      - name: Get latest commit SHA
+        id: get-sha
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.TOKEN_FOR_ACTIONS }}
+          result-encoding: string
+          script: |
+            const commits = await github.rest.git.listCommits({
+              owner: docker-library,
+              repo: official-images
+            });
+            return commits[0].sha;
+      
+      - name: Touch SHA
+        run: |
+          echo docker-library/official-images SHA: ${SHA}
+          echo "${SHA}" > /tmp/json-library.sha
+          cat /tmp/json-library.sha
+        env:
+          SHA: ${{ steps.get-sha.outputs.result }}
 
       - name: Upload JSON
         uses: actions/upload-artifact@v3
@@ -61,6 +125,14 @@ jobs:
           path: /tmp/json-library/*
           if-no-files-found: error
           retention-days: 1
+      
+      - name: Upload JSON
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-image-commit
+          path: /tmp/json-library.sha
+          if-no-files-found: error
+          retention-days: 14
 
   merge-json-output:
     name: Merge JSON output files
