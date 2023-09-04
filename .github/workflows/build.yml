@@ -50,7 +50,7 @@ jobs:
           mkdir -p /tmp/json-library
           cp output.json /tmp/json-library
         env:
-          IMAGE_NAME: ${{ matrix.docker-image }}
+          IMAGE_NAME: https://raw.githubusercontent.com/docker-library/official-images/master/library/${{ matrix.docker-image }}
 
       - name: Upload JSON
         uses: actions/upload-artifact@v3
