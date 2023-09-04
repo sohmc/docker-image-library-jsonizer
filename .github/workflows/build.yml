@@ -56,7 +56,7 @@ jobs:
         run: |
           echo Archived SHA: ${ARCHIVEDSHA}
           echo Latest SHA:   ${LATESTSHA}
-          if [ $ARCHIVEDSHA = $LATESTSHA ]; then 
+          if [[ $ARCHIVEDSHA == $LATESTSHA ]]; then 
             NEWCOMMIT=true
             
           else
@@ -91,7 +91,8 @@ jobs:
 
 
   build-json-files:
-    if: needs.get-latest-commit.outputs.new-commit == 'true'
+    if: needs.get-latest-commit.outputs.new-commit == 'true' || startsWith(github.event.head_commit.message, 'FORCE_BUILD=TRUE')
+        
     runs-on: ubuntu-latest
     needs: get-latest-commit
     # needs: get-image-names
