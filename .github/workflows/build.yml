@@ -167,7 +167,7 @@ jobs:
           gh api --method PATCH \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/${GITHUB_REPOSITORY}/actions/variables/ \
+            /repos/${GITHUB_REPOSITORY}/actions/variables/DOCKER_LIBRARY_SHA \
             -f name='DOCKER_LIBRARY_SHA' \
             -f value='${SHA}'
         env:
