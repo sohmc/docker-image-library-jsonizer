@@ -100,7 +100,7 @@ async function run(urlOfFile) {
   return versionsJson;
 }
 
-const url = run(process.env.URL);
+const url = process.env.URL;
 
 if (/^https:\/\/raw\.githubusercontent\.com\/docker-library\/official-images\//.test(url)) {
   run(url).then((versionsJson) => {
