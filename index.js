@@ -1,3 +1,7 @@
+const fs = require('fs');
+
+// Function and line-by-line parser copied from mdn web docs:
+// https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#processing_a_text_file_line_by_line
 async function* makeTextFileLineIterator(fileURL) {
   const utf8Decoder = new TextDecoder('utf-8');
   const response = await fetch(fileURL);
@@ -7,7 +11,6 @@ async function* makeTextFileLineIterator(fileURL) {
 
   const newline = /\r?\n/gm;
   let startIndex = 0;
-  let result;
 
   while (true) {
     const result = newline.exec(chunk);
@@ -34,7 +37,7 @@ async function run(urlOfFile) {
     'node': 'root',
   };
 
-  const phpVersionsJson = {};
+  const versionsJson = {};
   const tagObject = {
     'tags': [],
     'architectures': [],
@@ -47,20 +50,20 @@ async function run(urlOfFile) {
 
     if (/^# this file is generated via/.test(line)) {
       console.log('Beginning of file found.');
-      phpVersionsJson.sourceUrl = line.match(/https.*$/)[0];
+      versionsJson.sourceUrl = line.match(/https.*$/)[0];
     }
 
     if (/^Maintainers:/.test(line)) {
       console.log('Working on Maintainers');
       const maintainer = line.replace(/^Maintainers: (.*),?/, '$1').replace(/,/, '').trim();
 
-      phpVersionsJson.maintainers = Array(maintainer);
+      versionsJson.maintainers = Array(maintainer);
       parserStatus.node = 'maintainers';
     }
 
     if (/^GitRepo: /.test(line)) {
       console.log('Got GitRepo');
-      phpVersionsJson.gitRepo = line.replace(/^GitRepo: (.*)$/, '$1').trim();
+      versionsJson.gitRepo = line.replace(/^GitRepo: (.*)$/, '$1').trim();
     }
 
     if (/^Tags:/.test(line)) {
@@ -77,24 +80,33 @@ async function run(urlOfFile) {
 
     if (/^Directory:/.test(line)) {
       const directory = line.replace(/^Directory: (.*)$/, '$1').trim().split(', ');
-      phpVersionsJson[directory] = tagObject;
+      versionsJson[directory] = tagObject;
     }
 
     // If there are spaces before the next line of test, it's a continuation of the previous line.
     if (/^\s+\w+/.test(line)) {
       switch (parserStatus.node) {
-      case 'maintainers':
+      case 'maintainers': {
         const maintainer = line.trim().replace(/,/, '');
-        phpVersionsJson.maintainers.push(maintainer);
+        versionsJson.maintainers.push(maintainer);
         break;
+      }
 
       default:
         break;
       }
     }
   }
-
-  console.log(JSON.stringify(phpVersionsJson, null, 2));
+  return versionsJson;
 }
 
-run('https://raw.githubusercontent.com/docker-library/official-images/master/library/php');
+const url = run(process.env.URL);
+
+if (/^https:\/\/raw\.githubusercontent\.com\/docker-library\/official-images\//.test(url)) {
+  run(url).then((versionsJson) => {
+    console.log(JSON.stringify(versionsJson, null, 2));
+    fs.writeFileSync('output.json', JSON.stringify(versionsJson, null, 2));
+  });
+} else {
+  console.error('URL not provided or invalid.');
+}

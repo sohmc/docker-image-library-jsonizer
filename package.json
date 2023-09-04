@@ -1,11 +1,11 @@
 {
-  "name": "php-versions-json",
+  "name": "official-images-tag-json",
   "version": "1.0.0",
-  "description": "More to come.",
+  "description": "Parses docker-library/official-images tag output and generates a machine-readable JSON.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "Michael Soh",
+  "license": "AGPL-3.0-only"
 }
