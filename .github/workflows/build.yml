@@ -187,6 +187,7 @@ jobs:
 
   check-artifact:
     runs-on: ubuntu-latest
+    needs: get-latest-commit
     steps:
       - name: Download sha artifact
         id: download-sha-artifact
