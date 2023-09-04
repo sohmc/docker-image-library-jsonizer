@@ -125,6 +125,7 @@ jobs:
         with:
           artifacts: "/tmp/json-library/*"
           allowUpdates: true
+          token: ${{ secrets.TOKEN_FOR_ACTIONS }}
           tag: latest
           name: latest
           replacesArtifacts: true
