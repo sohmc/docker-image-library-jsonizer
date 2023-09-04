@@ -43,7 +43,7 @@ jobs:
           github-token: ${{ secrets.TOKEN_FOR_ACTIONS }}
           result-encoding: string
           script: |
-            const commits = await github.rest.git.listCommits({
+            const commits = await github.rest.repos.listCommits({
               owner: 'docker-library',
               repo: 'official-images'
             });
@@ -106,7 +106,7 @@ jobs:
           github-token: ${{ secrets.TOKEN_FOR_ACTIONS }}
           result-encoding: string
           script: |
-            const commits = await github.rest.git.listCommits({
+            const commits = await github.rest.repos.listCommits({
               owner: 'docker-library',
               repo: 'official-images'
             });
