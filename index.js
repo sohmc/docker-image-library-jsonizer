@@ -52,7 +52,6 @@ async function run(urlOfFile) {
   };
 
   for await (const line of makeTextFileLineIterator(urlOfFile)) {
-    // skip blank lines
     if (/^$/.test(line)) {
       switch (parserStatus.node) {
       case 'tags':
@@ -65,6 +64,8 @@ async function run(urlOfFile) {
     } else if (/^# this file is generated via/.test(line)) {
       console.log('Beginning of file found.');
       versionsJson.sourceUrl = line.match(/https.*$/)[0];
+    } else if (/^# /.test(line)) {
+      console.log('skipping comment');
     } else if (/^Maintainers:/.test(line)) {
       console.log('Working on Maintainers');
       const maintainer = line.replace(/^Maintainers: (.*),?/, '$1').replace(/,/, '').trim();
