@@ -35,6 +35,7 @@ async function* makeTextFileLineIterator(fileURL) {
 async function run(urlOfFile) {
   const parserStatus = {
     'node': 'root',
+    'tagArrayLength': 0,
   };
 
   const versionsJson = {
@@ -53,14 +54,7 @@ async function run(urlOfFile) {
 
   for await (const line of makeTextFileLineIterator(urlOfFile)) {
     if (/^$/.test(line)) {
-      switch (parserStatus.node) {
-      case 'tags':
-        versionsJson.tags.push(tagObject);
-        break;
-
-      default:
-        continue;
-      }
+      continue;
     } else if (/^# this file is generated via/.test(line)) {
       console.log('Beginning of file found.');
       versionsJson.sourceUrl = line.match(/https.*$/)[0];
@@ -73,10 +67,11 @@ async function run(urlOfFile) {
       versionsJson.Maintainers = Array(maintainer);
       parserStatus.node = 'maintainers';
     } else if (/^Tags:/.test(line)) {
-      tagObject.Tags = line.replace(/^Tags: (.*)$/, '$1').trim().split(', ');
+      console.log('New Tag Found');
       parserStatus.node = 'tags';
+      parserStatus.tagArrayLength = versionsJson.tags.push({ 'Tags': line.replace(/^Tags: (.*)$/, '$1').trim().split(', ') });
     } else if (/^Architectures:/.test(line)) {
-      tagObject.Architectures = line.replace(/^Architectures: (.*)$/, '$1').trim().split(', ');
+      versionsJson.tags[parserStatus.tagArrayLength - 1].Architectures = line.replace(/^Architectures: (.*)$/, '$1').trim().split(', ');
     } else if (/^\s+\w+/.test(line)) {
       // If there are spaces before the next line of test, it's a continuation of the previous line.
       switch (parserStatus.node) {
@@ -93,7 +88,7 @@ async function run(urlOfFile) {
       // If all parsers fail, do a generic map
       const newMap = line.trim().split(': ');
       if (parserStatus.node == 'tags') {
-        tagObject[newMap[0].trim()] = newMap[1].trim();
+        versionsJson.tags[parserStatus.tagArrayLength - 1][newMap[0].trim()] = newMap[1].trim();
       } else {
         versionsJson[newMap[0].trim()] = newMap[1].trim();
       }
@@ -102,7 +97,7 @@ async function run(urlOfFile) {
   return versionsJson;
 }
 
-const url = process.env.URL;
+const url = process.env.URL || 'https://raw.githubusercontent.com/docker-library/official-images/master/library/mysql';
 
 if (/^https:\/\/raw\.githubusercontent\.com\/docker-library\/official-images\//.test(url)) {
   run(url).then((versionsJson) => {
