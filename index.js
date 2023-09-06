@@ -37,54 +37,47 @@ async function run(urlOfFile) {
     'node': 'root',
   };
 
-  const versionsJson = {};
-  const tagObject = {
+  const versionsJson = {
+    'name': urlOfFile.match(/\w+$/)[0],
+    'Maintainers': [],
+    'GitRepo': 'https://github.com/docker-library',
     'tags': [],
-    'architectures': [],
-    'gitCommit': '',
+    'sourceUrl': 'https://github.com/docker-library',
+  };
+
+  const tagObject = {
+    'Tags': [],
+    'Architectures': [],
+    'GitCommit': '',
   };
 
   for await (const line of makeTextFileLineIterator(urlOfFile)) {
     // skip blank lines
-    if (/^\n/.test(line)) continue;
+    if (/^$/.test(line)) {
+      switch (parserStatus.node) {
+      case 'tags':
+        versionsJson.tags.push(tagObject);
+        break;
 
-    if (/^# this file is generated via/.test(line)) {
+      default:
+        continue;
+      }
+    } else if (/^# this file is generated via/.test(line)) {
       console.log('Beginning of file found.');
       versionsJson.sourceUrl = line.match(/https.*$/)[0];
-    }
-
-    if (/^Maintainers:/.test(line)) {
+    } else if (/^Maintainers:/.test(line)) {
       console.log('Working on Maintainers');
       const maintainer = line.replace(/^Maintainers: (.*),?/, '$1').replace(/,/, '').trim();
 
-      versionsJson.maintainers = Array(maintainer);
+      versionsJson.Maintainers = Array(maintainer);
       parserStatus.node = 'maintainers';
-    }
-
-    if (/^GitRepo: /.test(line)) {
-      console.log('Got GitRepo');
-      versionsJson.gitRepo = line.replace(/^GitRepo: (.*)$/, '$1').trim();
-    }
-
-    if (/^Tags:/.test(line)) {
-      tagObject.tags = line.replace(/^Tags: (.*)$/, '$1').trim().split(', ');
-    }
-
-    if (/^Architectures:/.test(line)) {
-      tagObject.architectures = line.replace(/^Architectures: (.*)$/, '$1').trim().split(', ');
-    }
-
-    if (/^GitCommit:/.test(line)) {
-      tagObject.gitCommit = line.replace(/^GitCommit: (.*)$/, '$1').trim();
-    }
-
-    if (/^Directory:/.test(line)) {
-      const directory = line.replace(/^Directory: (.*)$/, '$1').trim().split(', ');
-      versionsJson[directory] = tagObject;
-    }
-
-    // If there are spaces before the next line of test, it's a continuation of the previous line.
-    if (/^\s+\w+/.test(line)) {
+    } else if (/^Tags:/.test(line)) {
+      tagObject.Tags = line.replace(/^Tags: (.*)$/, '$1').trim().split(', ');
+      parserStatus.node = 'tags';
+    } else if (/^Architectures:/.test(line)) {
+      tagObject.Architectures = line.replace(/^Architectures: (.*)$/, '$1').trim().split(', ');
+    } else if (/^\s+\w+/.test(line)) {
+      // If there are spaces before the next line of test, it's a continuation of the previous line.
       switch (parserStatus.node) {
       case 'maintainers': {
         const maintainer = line.trim().replace(/,/, '');
@@ -94,6 +87,14 @@ async function run(urlOfFile) {
 
       default:
         break;
+      }
+    } else {
+      // If all parsers fail, do a generic map
+      const newMap = line.trim().split(': ');
+      if (parserStatus.node == 'tags') {
+        tagObject[newMap[0].trim()] = newMap[1].trim();
+      } else {
+        versionsJson[newMap[0].trim()] = newMap[1].trim();
       }
     }
   }
