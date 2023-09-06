@@ -81,7 +81,7 @@ async function run(urlOfFile) {
       switch (parserStatus.node) {
       case 'maintainers': {
         const maintainer = line.trim().replace(/,/, '');
-        versionsJson.maintainers.push(maintainer);
+        versionsJson.Maintainers.push(maintainer);
         break;
       }
 
