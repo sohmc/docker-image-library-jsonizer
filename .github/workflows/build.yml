@@ -82,7 +82,7 @@ jobs:
     strategy:
       matrix:
         # docker-image: ${{ fromJson(needs.get-image-names.outputs.image-list) }}
-        docker-image: [php]
+        docker-image: [php, alpine, debian, ubuntu, nginx, mysql]
       max-parallel: 5
     steps:
       - uses: actions/checkout@v4
@@ -129,7 +129,8 @@ jobs:
           tag: latest
           name: latest
           replacesArtifacts: true
-          body: Release artifacts have been updated to reflect [docker-library/official-images](https://github.com/docker-library/official-images/tree/${{ vars.DOCKER_LIBRARY_SHA }}) commit `${{ vars.DOCKER_LIBRARY_SHA }}.
+          body: |
+            Release artifacts have been updated to reflect [docker-library/official-images](https://github.com/docker-library/official-images) commit [`${{ vars.DOCKER_LIBRARY_SHA }}`](https://github.com/docker-library/official-images/tree/${{ vars.DOCKER_LIBRARY_SHA }}).
 
   store-latest-commit-sha:
     name: Store docker-library commit SHA
