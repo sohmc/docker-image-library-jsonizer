@@ -1,8 +1,10 @@
 # Docker Image Library jsonizer
 
+[![Docker Official Images JSON Builder](https://github.com/sohmc/docker-image-library-jsonizer/actions/workflows/build.yml/badge.svg)](https://github.com/sohmc/docker-image-library-jsonizer/actions/workflows/build.yml)
+
 Wanting to find a way to programmatically parse [Docker's Official Image Library tag output](https://github.com/docker-library/official-images/tree/master/library), I built this parser to create a json that others can use for their own purposes.
 
-# Schema, generally
+## Schema, generally
 
 The goal for this repo is to make the library easier to parse.  Metadata is stored as properties in the main object, with some json-friendly changes to make things easier to navigate.
 
@@ -12,7 +14,7 @@ The goal for this repo is to make the library easier to parse.  Metadata is stor
 - All property names have their case preserved
 - Comments (lines that start with `#`) are ignored **except when it's explicitly parsed**, which is the case for files that are automatically generated (e.g. php, mysql, etc).
 
-# License
+## License
 
 As this parser simply "reformats" files that exist in the [docker-library/official-images](https://github.com/docker-library/official-images/) repository, the resulting JSON files that are generated in "Releases" are released via [Apache License 2.0](https://github.com/docker-library/official-images/blob/master/LICENSE).
 
