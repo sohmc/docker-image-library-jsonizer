@@ -68,9 +68,10 @@ jobs:
         if: startsWith(github.event.head_commit.message, 'FORCE_BUILD=TRUE')
         run: |
           echo "FORCE_BUILD: ${LATEST_PHP_SHA}" > ./build_sha.txt
-          git status
         env:
           LATEST_SHA: ${{ needs.get-latest-commit.outputs.latest-sha }}
+
+      - run: git status
 
       - name: Git Add and Commit
         uses: EndBug/add-and-commit@v9
