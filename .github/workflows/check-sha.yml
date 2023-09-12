@@ -60,7 +60,7 @@ jobs:
       - name: Update LATEST
         if: needs.get-latest-commit.outputs.new-commit == 'true'
         run: |
-          echo "LATEST: ${LATEST_SHA}" > ./build-sha.txt
+          echo "LATEST: ${LATEST_SHA}" > ./build_sha.txt
         env:
           LATEST_SHA: ${{ needs.get-latest-commit.outputs.latest-sha }}
   
