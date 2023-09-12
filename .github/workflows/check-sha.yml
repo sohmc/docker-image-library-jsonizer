@@ -56,6 +56,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.TOKEN_FOR_ACTIONS }}
 
       - name: Update LATEST
         if: needs.get-latest-commit.outputs.new-commit == 'true'
