@@ -84,3 +84,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.TOKEN_FOR_ACTIONS }}
           SHA: ${{ needs.get-latest-commit.outputs.latest-sha }}
+      
+      - name: Git Add and Commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: './build_sha.txt'
+          author_name: 'daily-check-cron-sohmc-docker-image-library-jsonizer'
+          author_email: 'ca540d71efa149beb6638d8d17643cec@schedule.github.actions'
