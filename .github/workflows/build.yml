@@ -1,10 +1,6 @@
 name: Docker Official Images JSON Builder
 
-on: 
-  push:
-    branches: [main]
-    paths:
-      - 'build_sha.txt'
+on: workflow_call
 
 jobs:
   get-image-names:
