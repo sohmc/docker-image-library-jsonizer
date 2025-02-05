@@ -57,7 +57,7 @@ jobs:
     
     steps:
       - name: Download JSON Files
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: docker-image-json
           path: /tmp/json-library
