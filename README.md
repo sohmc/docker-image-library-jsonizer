@@ -1,6 +1,6 @@
 # Docker Image Library jsonizer
 
-[![Docker Official Images JSON Builder](https://github.com/sohmc/docker-image-library-jsonizer/actions/workflows/build.yml/badge.svg)](https://github.com/sohmc/docker-image-library-jsonizer/actions/workflows/build.yml)
+[![Check Commit SHA](https://github.com/sohmc/docker-image-library-jsonizer/actions/workflows/check-sha.yml/badge.svg)](https://github.com/sohmc/docker-image-library-jsonizer/actions/workflows/check-sha.yml)
 
 Wanting to find a way to programmatically parse [Docker's Official Image Library tag output](https://github.com/docker-library/official-images/tree/master/library), I built this parser to create a json that others can use for their own purposes.
 
