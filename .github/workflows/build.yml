@@ -45,7 +45,7 @@ jobs:
       - name: Upload Image JSON Files
         uses: actions/upload-artifact@v4
         with:
-          name: docker-image-json
+          name: docker-image-json-${{ matrix.docker-image }}
           path: /tmp/json-library/*
           if-no-files-found: error
           retention-days: 1
@@ -59,8 +59,9 @@ jobs:
       - name: Download JSON Files
         uses: actions/download-artifact@v4
         with:
-          name: docker-image-json
+          pattern: docker-image-json-*
           path: /tmp/json-library
+          merge-multiple: true
       
       - name: List Files
         working-directory: /tmp/json-library
