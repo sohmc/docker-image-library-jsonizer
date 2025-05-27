@@ -11,6 +11,9 @@ on:
     # 12:34 AM every day
     - cron: '34 0 * * *'
 
+permissions:
+  contents: write
+
 jobs:
   get-latest-commit:
     runs-on: ubuntu-latest
