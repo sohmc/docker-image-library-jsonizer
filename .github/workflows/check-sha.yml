@@ -11,7 +11,7 @@ on:
     # 12:34 AM every day
     - cron: '34 0 * * *'
 
-permissions: read-all
+# permissions: read-all
 
 jobs:
   get-latest-commit:
