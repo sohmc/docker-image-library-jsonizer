@@ -71,7 +71,6 @@ jobs:
         id: get-latest-sha
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.TOKEN_FOR_ACTIONS }}
           result-encoding: string
           script: |
             const commits = await github.rest.repos.listCommits({
@@ -84,7 +83,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: "/tmp/json-library/*"
-          token: ${{ secrets.TOKEN_FOR_ACTIONS }}
+          # token: ${{ secrets.TOKEN_FOR_ACTIONS }}
           tag: v-${{ steps.get-latest-sha.outputs.result }}
           name: Release for ${{ steps.get-latest-sha.outputs.result }}
           makeLatest: true
