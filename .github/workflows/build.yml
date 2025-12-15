@@ -43,7 +43,7 @@ jobs:
           IMAGE_NAME: ${{ matrix.docker-image }}
 
       - name: Upload Image JSON Files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: docker-image-json-${{ matrix.docker-image }}
           path: /tmp/json-library/*
